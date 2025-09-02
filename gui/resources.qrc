@@ -1,0 +1,14 @@
+<RCC>
+  <qresource>
+    <file>../icons/trash.png</file>
+    <file>../icons/github.png</file>
+    <file>../icons/export.png</file>
+    <file>../icons/error.png</file>
+    <file>../icons/success.png</file>
+    <file>../icons/import.png</file>
+    <file>../icons/info.png</file>
+    <file>../icons/pause.png</file>
+    <file>../icons/start.png</file>
+    <file>../icons/stop.png</file>
+  </qresource>
+</RCC>

@@ -1,0 +1,7 @@
+selenium
+requests
+pywhatkit
+pandas
+sqlalchemy
+PyQt6
+PySide6

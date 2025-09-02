@@ -1,0 +1,8 @@
+*.db
+*.bak
+*.sqlite3
+.idea/
+lab/
+__pycache__/
+todo.md
+metadata.txt
