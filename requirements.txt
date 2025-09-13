@@ -5,3 +5,5 @@ pandas
 sqlalchemy
 PyQt6
 PySide6
+openpyxl
+xlrd==1.2.0
