@@ -33,7 +33,7 @@ Line{
 	background-color:#222224;
 }
 
-#label_header_l, #label_header_r, #label_header_b  {
+#label_header_operations, #label_header_message, #label_header_log {
 	color:white;
 }
 
@@ -48,7 +48,7 @@ QLabel{
 
 #Log {
 	background-color: #0F1014;
-	color:#AFB0B3;
+	color:#8D9199;
 }
 
 </string>
@@ -104,7 +104,7 @@ QLabel{
           <number>0</number>
          </property>
          <item>
-          <widget class="QLabel" name="label_header_b">
+          <widget class="QLabel" name="label_header_log">
            <property name="font">
             <font>
              <family>Adwaita Mono</family>
@@ -118,7 +118,7 @@ QLabel{
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_comment_b">
+          <widget class="QLabel" name="label_comment_log">
            <property name="font">
             <font>
              <family>Adwaita Mono</family>
@@ -383,7 +383,7 @@ color:white;
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_2">
              <item>
-              <widget class="QLabel" name="label_header_b_2">
+              <widget class="QLabel" name="label_header_status">
                <property name="font">
                 <font>
                  <family>Adwaita Mono</family>
@@ -467,7 +467,7 @@ border:none;</string>
             <number>0</number>
            </property>
            <item>
-            <widget class="QLabel" name="label_header_l">
+            <widget class="QLabel" name="label_header_operations">
              <property name="font">
               <font>
                <family>Adwaita Mono</family>
@@ -481,7 +481,7 @@ border:none;</string>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_comment_l">
+            <widget class="QLabel" name="label_comment_operations">
              <property name="font">
               <font>
                <family>Adwaita Mono</family>
@@ -490,7 +490,7 @@ border:none;</string>
               </font>
              </property>
              <property name="text">
-              <string>Manage your WhatsApp cmpaign messages.</string>
+              <string>Manage your WhatsApp campaign messages.</string>
              </property>
             </widget>
            </item>
@@ -539,7 +539,7 @@ border:none;</string>
             <number>0</number>
            </property>
            <item>
-            <widget class="QLabel" name="label_header_r">
+            <widget class="QLabel" name="label_header_message">
              <property name="font">
               <font>
                <family>Adwaita Mono</family>
@@ -553,7 +553,7 @@ border:none;</string>
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_comment_r">
+            <widget class="QLabel" name="label_comment_message">
              <property name="font">
               <font>
                <family>Adwaita Mono</family>
@@ -692,9 +692,7 @@ color:white;
            </property>
            <property name="styleSheet">
             <string notr="true">background-color: #000000;
-border:none;
-color:white;
-</string>
+border:none;</string>
            </property>
            <property name="text">
             <string/>
