@@ -3,7 +3,9 @@ import pandas as pd
 import numpy as np
 import sys
 import socket
+import webbrowser
 from db_connect import *
+from info import *
 from PyQt6.QtWidgets import QProgressDialog, QApplication, QMainWindow, QMessageBox, QFileDialog, QDialog, QTableWidgetItem, QCheckBox, QWidget, QHBoxLayout
 from PyQt6.QtCore import Qt
 
@@ -28,10 +30,10 @@ class Main(QMainWindow, Ui_Main):
         self.btn_import.clicked.connect(self.select_excel_file)
         self.btn_start.clicked.connect(self.start_operation)
         self.btn_stop.clicked.connect(self.stop_operation)
-        self.btn_info.clicked.connect(self.info)
+        self.btn_info.clicked.connect(self.about)
         self.btn_github.clicked.connect(self.github)
         self.btn_export.clicked.connect(self.export_db)
-        self.btn_delete.clicked.connect(self.clear_db)
+        self.btn_delete.clicked.connect(self.reset_db)
 
 
     ############## IMPORT FROM EXCEL #####################
@@ -107,18 +109,45 @@ class Main(QMainWindow, Ui_Main):
         self.MessageBox('info' ,'Test')
 
 
-    ############## ANOTHER BUTTONS #######################
+    ############## TOP BUTTONS #######################
     ######################################################
 
-    def info(self):
-        self.MessageBox('info' ,'Test')
+    ######## About ###########################
+    def about (self):
+        about_info = f"""\n
+        Version: {app_version}
+        Commit: {commit}
+        Date: {last_update}
+        Python: 3.13.7
+        PyQt6: 6.9.1
+        OS: Linux x64, Windows (10, 11) x64
+        """
 
+        self.MessageBox('info' , about_info)
+
+    ######## Github #########################
     def github(self):
-        self.MessageBox('info' ,'Test')
+         webbrowser.open("https://github.com/alasgarovs/Octo.git")
 
-    def clear_db(self):
-        self.MessageBox('info' ,'Test')
+    ####### Reset DB ############################
+    def reset_db(self):
+        reply = QMessageBox.question(self, 'Confirm Reset', 
+                                     "Are you sure you want to reset the database?",
+                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                                     QMessageBox.StandardButton.No)
 
+        if reply == QMessageBox.StandardButton.Yes:
+            with Session() as session:
+                session.query(Pool).delete()
+                session.commit()
+
+                session.query(TempNumbers).delete()
+                session.commit()
+
+                QMessageBox.information(self, 'Database Reset Successful', 'The database has been successfully reset to its initial state.')
+
+
+    ######## Export DB from excel ####################
     def export_db(self):
         self.MessageBox('info' ,'Test')
 
