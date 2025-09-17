@@ -1,0 +1,8 @@
+app_name = 'Octo'
+app_version= 'v1.0.0'
+commit = ''
+last_update = ''
+original_filename = 'Octo.exe'
+file_description = 'WhatsApp Messaging Bot'
+company_name = ''
+legal_copyright = 'All Rights Reserved © 2025.'
