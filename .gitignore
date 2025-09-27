@@ -1,6 +1,7 @@
 *.db
 *.bak
 *.sqlite3
+.xlsx
 .idea/
 lab/
 __pycache__/
