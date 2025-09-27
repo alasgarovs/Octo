@@ -4,10 +4,16 @@ import numpy as np
 import sys
 import socket
 import webbrowser
+
+from openpyxl import Workbook
+from openpyxl.utils import get_column_letter
+
 from db_connect import *
 from info import *
+
 from PyQt6.QtWidgets import QProgressDialog, QApplication, QMainWindow, QMessageBox, QFileDialog, QDialog, QTableWidgetItem, QCheckBox, QWidget, QHBoxLayout
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QColor
 
 from ui_pycode.main import Ui_Main
 
@@ -24,12 +30,18 @@ class Main(QMainWindow, Ui_Main):
 
     def setup_window(self):
         self.setWindowTitle(self.title)
-
+        self.btn_accept.hide()
+        self.btn_cancel.hide()
+        self.get_message()
+        
 
     def setup_buttons(self):
         self.btn_import.clicked.connect(self.select_excel_file)
         self.btn_start.clicked.connect(self.start_operation)
         self.btn_stop.clicked.connect(self.stop_operation)
+        self.btn_edit.clicked.connect(lambda: self.message_action("edit"))
+        self.btn_accept.clicked.connect(lambda: self.message_action("accept"))
+        self.btn_cancel.clicked.connect(lambda: self.message_action("cancel"))
         self.btn_info.clicked.connect(self.about)
         self.btn_github.clicked.connect(self.github)
         self.btn_export.clicked.connect(self.export_db)
@@ -95,39 +107,92 @@ class Main(QMainWindow, Ui_Main):
             self.MessageBox('error', f'Error reading file:{e}')
 
 
-    ############## START #################################
+    ############## OPERATIONS #################################
     ######################################################
 
     def start_operation(self):
         self.MessageBox('info' ,'Test')
 
-
-    ############## STOP ##################################
-    ######################################################
-
     def stop_operation(self):
         self.MessageBox('info' ,'Test')
 
-
-    ############## TOP BUTTONS #######################
+    ############## Message Section #######################
     ######################################################
 
-    ######## About ###########################
-    def about (self):
-        about_info = f"""\n
-        Version: {app_version}
-        Commit: {commit}
-        Date: {last_update}
-        Python: 3.13.7
-        PyQt6: 6.9.1
-        OS: Linux x64, Windows (10, 11) x64
-        """
+    def message_action(self, action):
+        if action in ('accept', 'cancel'):
+            if action == 'accept':
+                reply = QMessageBox.question(
+                    self,
+                    "Save Message",
+                    "Are you sure you want to save this message?",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+                )
+                
+                if reply == QMessageBox.StandardButton.Yes:
+                    try:
+                        message_text = self.Message.toPlainText().strip()
+                        
+                        if not message_text:
+                            QMessageBox.warning(self, "Empty Message", "Message cannot be empty.")
+                            self.Message.setFocus()
+                            return
+   
+                        with Session() as session:
+                            first_msg = session.query(Message).order_by(Message.id).first()
+                            
+                            if first_msg:
+                                first_msg.message = message_text
+                            else:
+                                new_msg = Message(message=message_text)
+                                session.add(new_msg)
+                            
+                            session.commit()
+                            
+                    except Exception as e:
+                        QMessageBox.critical(self, "Error", f"Failed to save message:\n{str(e)}")
+                        return
+                else:
+                    self.Message.setFocus()
+                    return
+                    
+            else: 
+                reply = QMessageBox.question(
+                    self,
+                    "Cancel Editing",
+                    "Are you sure you want to discard changes?",
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+                )
+                
+                if reply == QMessageBox.StandardButton.No:
+                    self.Message.setFocus()
+                    return
+            
+            self.btn_accept.hide()
+            self.btn_cancel.hide() 
+            self.btn_edit.show() 
+            self.Message.setReadOnly(True)
+            self.Message.clearFocus()
 
-        self.MessageBox('info' , about_info)
+            self.get_message()
+        else:
+            self.btn_accept.show()
+            self.btn_cancel.show() 
+            self.btn_edit.hide() 
+            self.Message.setReadOnly(False)
+            self.Message.setFocus()
+        
 
-    ######## Github #########################
-    def github(self):
-         webbrowser.open("https://github.com/alasgarovs/Octo.git")
+    def get_message(self):
+        with Session() as session:
+            first_msg = session.query(Message).order_by(Message.id).first()
+            if first_msg:
+                self.Message.setPlainText(first_msg.message)
+            else:
+                self.Message.clear()
+
+    ############## TOP BUTTONS #######################
+    ##################################################
 
     ####### Reset DB ############################
     def reset_db(self):
@@ -148,9 +213,58 @@ class Main(QMainWindow, Ui_Main):
 
 
     ######## Export DB from excel ####################
-    def export_db(self):
-        self.MessageBox('info' ,'Test')
+    def export_db(self):          
+        try:
+            with Session() as session:
+                results = session.query(Pool.number, Pool.whatsapp_status).all()
 
+                if not results:
+                    QMessageBox.warning(self, "No Data", "The Numbers is empty. Nothing to export.")
+                    return
+
+                default_filename = f"numbers_ex_{datetime.now().strftime('%Y%m%d')}.xlsx"
+                file_path, _ = QFileDialog.getSaveFileName(
+                    self,
+                    "Export to Excel",
+                    default_filename,
+                    "Excel Files (*.xlsx)"
+                )
+
+                if not file_path:
+                    return
+
+                if not file_path.endswith('.xlsx'):
+                    file_path += '.xlsx'
+
+                data = [
+                    {'Number': row.number, 'WhatsApp Status': row.whatsapp_status}
+                    for row in results
+                ]
+
+                df = pd.DataFrame(data)
+                df.to_excel(file_path, index=False)
+
+            QMessageBox.information(self, "Success", f"Data exported successfully to:\n{file_path}")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Failed to export data:\n{str(e)}")
+
+    ######## About ###########################
+    def about (self):
+        about_info = f"""\n
+        Version: {app_version}
+        Commit: {commit}
+        Date: {last_update}
+        Python: 3.13.7
+        PyQt6: 6.9.1
+        OS: Linux x64, Windows (10, 11) x64
+        """
+
+        self.MessageBox('info' , about_info)
+
+    ######## Github #########################
+    def github(self):
+        webbrowser.open("https://github.com/alasgarovs/OctoBot.git")
 
     ############## QUIT ##################################
     ######################################################

@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Boolean,Column, Integer, String, DECIMAL, Float, Enum, DateTime, Date, ForeignKey, func, case
+from sqlalchemy import create_engine, Boolean,Column, Integer, String, DECIMAL, Float, Enum, DateTime, Date, ForeignKey, func, case, select
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import pytz 
@@ -23,6 +23,13 @@ class TempNumbers(Base):
     
     id = Column(Integer, primary_key=True)
     number = Column(String(50), nullable=False)
+
+
+class Message(Base):
+    __tablename__ = 'Message'
+    
+    id = Column(Integer, primary_key=True)
+    message = Column(String(10000), nullable=False)
 
 
 class License(Base):
