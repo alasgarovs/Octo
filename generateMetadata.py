@@ -38,5 +38,6 @@ VSVersionInfo(
         output_file.write(version_content.strip())
 
 
+
 if __name__ == "__main__":
     generate_md('metadata.txt')
