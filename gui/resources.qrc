@@ -3,7 +3,6 @@
     <file>../icons/accept.png</file>
     <file>../icons/cancel.png</file>
     <file>../icons/pen.png</file>
-    <file>../icons/error.png</file>
     <file>../icons/export.png</file>
     <file>../icons/github.png</file>
     <file>../icons/import.png</file>
@@ -11,7 +10,8 @@
     <file>../icons/pause.png</file>
     <file>../icons/start.png</file>
     <file>../icons/stop.png</file>
-    <file>../icons/success.png</file>
     <file>../icons/trash.png</file>
+    <file>../icons/active.png</file>
+    <file>../icons/deactive.png</file>
   </qresource>
 </RCC>
