@@ -473,7 +473,7 @@ color:white;
                    <string notr="true">color: rgb(255, 255, 255);</string>
                   </property>
                   <property name="text">
-                   <string>Status       :</string>
+                   <string>Status:</string>
                   </property>
                  </widget>
                 </item>
@@ -567,23 +567,6 @@ border:none;</string>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_13">
                 <item>
-                 <widget class="QLabel" name="temp_numbers">
-                  <property name="font">
-                   <font>
-                    <family>Adwaita Mono</family>
-                    <pointsize>9</pointsize>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">color: rgb(255, 255, 255);</string>
-                  </property>
-                  <property name="text">
-                   <string>Temp numbers :</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
                  <widget class="QLabel" name="label_temp_numbers">
                   <property name="font">
                    <font>
@@ -593,10 +576,27 @@ border:none;</string>
                    </font>
                   </property>
                   <property name="styleSheet">
-                   <string notr="true">color: rgb(255, 255, 255);</string>
+                   <string notr="true">color: #58ABF3;</string>
                   </property>
                   <property name="text">
                    <string>0</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="temp_numbers">
+                  <property name="font">
+                   <font>
+                    <family>Adwaita Mono</family>
+                    <pointsize>9</pointsize>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">color: #58ABF3;</string>
+                  </property>
+                  <property name="text">
+                   <string>numbers in the temporary database</string>
                   </property>
                  </widget>
                 </item>
@@ -618,23 +618,6 @@ border:none;</string>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_14">
                 <item>
-                 <widget class="QLabel" name="checked">
-                  <property name="font">
-                   <font>
-                    <family>Adwaita Mono</family>
-                    <pointsize>9</pointsize>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">color: rgb(255, 255, 255);</string>
-                  </property>
-                  <property name="text">
-                   <string>Checked      :</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
                  <widget class="QLabel" name="label_checked">
                   <property name="font">
                    <font>
@@ -644,10 +627,27 @@ border:none;</string>
                    </font>
                   </property>
                   <property name="styleSheet">
-                   <string notr="true">color: rgb(255, 255, 255);</string>
+                   <string notr="true">color:#00BA00;</string>
                   </property>
                   <property name="text">
                    <string>0</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="checked">
+                  <property name="font">
+                   <font>
+                    <family>Adwaita Mono</family>
+                    <pointsize>9</pointsize>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">color:#00BA00;</string>
+                  </property>
+                  <property name="text">
+                   <string>numbers have been checked</string>
                   </property>
                  </widget>
                 </item>
@@ -669,7 +669,7 @@ border:none;</string>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_15">
                 <item>
-                 <widget class="QLabel" name="unchecked">
+                 <widget class="QLabel" name="label_pending">
                   <property name="font">
                    <font>
                     <family>Adwaita Mono</family>
@@ -678,15 +678,15 @@ border:none;</string>
                    </font>
                   </property>
                   <property name="styleSheet">
-                   <string notr="true">color: rgb(255, 255, 255);</string>
+                   <string notr="true">color: rgb(255, 197, 24);</string>
                   </property>
                   <property name="text">
-                   <string>Unchecked    :</string>
+                   <string>0</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLabel" name="label_unchecked">
+                 <widget class="QLabel" name="pending">
                   <property name="font">
                    <font>
                     <family>Adwaita Mono</family>
@@ -695,10 +695,10 @@ border:none;</string>
                    </font>
                   </property>
                   <property name="styleSheet">
-                   <string notr="true">color: rgb(255, 255, 255);</string>
+                   <string notr="true">color: rgb(255, 197, 24);</string>
                   </property>
                   <property name="text">
-                   <string>0</string>
+                   <string>numbers are pending</string>
                   </property>
                  </widget>
                 </item>
@@ -720,23 +720,6 @@ border:none;</string>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_17">
                 <item>
-                 <widget class="QLabel" name="DB_numbers">
-                  <property name="font">
-                   <font>
-                    <family>Adwaita Mono</family>
-                    <pointsize>9</pointsize>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">color: rgb(255, 255, 255);</string>
-                  </property>
-                  <property name="text">
-                   <string>DB numbers   :</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
                  <widget class="QLabel" name="label_DB_numbers">
                   <property name="font">
                    <font>
@@ -750,6 +733,23 @@ border:none;</string>
                   </property>
                   <property name="text">
                    <string>0</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="DB_numbers">
+                  <property name="font">
+                   <font>
+                    <family>Adwaita Mono</family>
+                    <pointsize>9</pointsize>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">color: rgb(255, 255, 255);</string>
+                  </property>
+                  <property name="text">
+                   <string>numbers in the database</string>
                   </property>
                  </widget>
                 </item>
