@@ -32,12 +32,16 @@ class Main(QMainWindow, Ui_Main):
         self.setWindowTitle(self.title)
         self.btn_accept.hide()
         self.btn_cancel.hide()
-        self.get_message()
+        self.label_active.hide()
+        self.fetch_message()
+        self.fetch_temp_numbers_count()
+        self.fetch_all_numbers_count()
         
 
     def setup_buttons(self):
         self.btn_import.clicked.connect(self.select_excel_file)
         self.btn_start.clicked.connect(self.start_operation)
+        self.btn_pause.clicked.connect(self.pause_operation)
         self.btn_stop.clicked.connect(self.stop_operation)
         self.btn_edit.clicked.connect(lambda: self.message_action("edit"))
         self.btn_accept.clicked.connect(lambda: self.message_action("accept"))
@@ -86,6 +90,7 @@ class Main(QMainWindow, Ui_Main):
             self.MessageBox('error', f"Database error: {e}")
             return
 
+        self.fetch_temp_numbers_count()
         self.label_comment_log.setText("Real-time status updates and message delivery reports.")
         self.MessageBox('info', f'{len(nums)} numbers imported successfully')
 
@@ -112,9 +117,24 @@ class Main(QMainWindow, Ui_Main):
 
     def start_operation(self):
         self.MessageBox('info' ,'Test')
+    
+    def pause_operation(self):
+        self.MessageBox('info' ,'Test')
 
     def stop_operation(self):
         self.MessageBox('info' ,'Test')
+
+    def fetch_temp_numbers_count(self):
+        with Session() as session:
+            temp_numbers_count = session.query(TempNumbers).count()
+        
+        self.label_temp_numbers.setText(str(temp_numbers_count))
+
+    def fetch_all_numbers_count(self):
+        with Session() as session:
+            all_numbers_count = session.query(Pool).count()
+        
+        self.label_DB_numbers.setText(str(all_numbers_count))
 
     ############## Message Section #######################
     ######################################################
@@ -125,7 +145,7 @@ class Main(QMainWindow, Ui_Main):
                 reply = QMessageBox.question(
                     self,
                     "Save Message",
-                    "Are you sure you want to save this message?",
+                    "Are you sure you want to save message?",
                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
                 )
                 
@@ -133,10 +153,10 @@ class Main(QMainWindow, Ui_Main):
                     try:
                         message_text = self.Message.toPlainText().strip()
                         
-                        if not message_text:
-                            QMessageBox.warning(self, "Empty Message", "Message cannot be empty.")
-                            self.Message.setFocus()
-                            return
+                        # if not message_text:
+                        #     QMessageBox.warning(self, "Empty Message", "Message cannot be empty.")
+                        #     self.Message.setFocus()
+                        #     return
    
                         with Session() as session:
                             first_msg = session.query(Message).order_by(Message.id).first()
@@ -174,7 +194,7 @@ class Main(QMainWindow, Ui_Main):
             self.Message.setReadOnly(True)
             self.Message.clearFocus()
 
-            self.get_message()
+            self.fetch_message()
         else:
             self.btn_accept.show()
             self.btn_cancel.show() 
@@ -183,7 +203,7 @@ class Main(QMainWindow, Ui_Main):
             self.Message.setFocus()
         
 
-    def get_message(self):
+    def fetch_message(self):
         with Session() as session:
             first_msg = session.query(Message).order_by(Message.id).first()
             if first_msg:
