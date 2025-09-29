@@ -4,16 +4,27 @@ import numpy as np
 import sys
 import socket
 import webbrowser
+import time
+import urllib.parse
+import re
+from datetime import datetime
 
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from db_connect import *
 from info import *
 
 from PyQt6.QtWidgets import QProgressDialog, QApplication, QMainWindow, QMessageBox, QFileDialog, QDialog, QTableWidgetItem, QCheckBox, QWidget, QHBoxLayout
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QColor
+from PyQt6.QtGui import QTextCharFormat, QColor, QTextCursor
 
 from ui_pycode.main import Ui_Main
 
@@ -24,8 +35,13 @@ class Main(QMainWindow, Ui_Main):
         self.setupUi(self)
 
         self.title = 'WhatsBot'
+        self.success = ['\uf058', '#055D9D']
+        self.error = ['\uf057', '#BD4A53']
+        self.info = ['\uf05a', '#D8D9DB']
+        self.critical = ['\uf06a', '#B76D30']
         self.setup_window()
         self.setup_buttons()
+
         
 
     def setup_window(self):
@@ -36,6 +52,7 @@ class Main(QMainWindow, Ui_Main):
         self.fetch_message()
         self.fetch_temp_numbers_count()
         self.fetch_all_numbers_count()
+        self.log_message(f"System initialized. Waiting for commands.", self.info)
         
 
     def setup_buttons(self):
@@ -55,7 +72,7 @@ class Main(QMainWindow, Ui_Main):
     ############## IMPORT FROM EXCEL #####################
     ######################################################
 
-    def extract_numbers_from_excel(self, file_path):
+    def import_numbers(self, file_path, file_name):
         ext = os.path.splitext(file_path)[1].lower()
         engine = "openpyxl" if ext == ".xlsx" else "xlrd"
         df = pd.read_excel(file_path, sheet_name=0, header=None, engine=engine)
@@ -63,36 +80,30 @@ class Main(QMainWindow, Ui_Main):
         nums = pd.to_numeric(col, errors="coerce").dropna()
         nums = nums.apply(lambda x: int(x) if float(x).is_integer() else float(x))
 
-
         if len(nums) == 0:
-            self.MessageBox('error', "Numbers could not be found")
+            self.log_message(f"'{file_name}' file is empty.", self.error)
             return
-
-        self.Log.clear()
-        self.label_comment_log.setText("Importing numbers...")
-        QApplication.processEvents()
 
         try:
             with Session() as session:
                 session.query(TempNumbers).delete()
                 session.commit()
 
-                for i, n in enumerate(nums, 1):
-                    session.add(TempNumbers(number=n))
+                self.log_message(f"Uploading numbers from '{file_name}' file...", self.info)
+                for i, number in enumerate(nums, 1):
+                    session.add(TempNumbers(number=number))
 
-                    self.Log.append(f"- {n}")
-                    self.label_comment_log.setText(f"Importing numbers: {i}")
+                    self.label_temp_numbers.setText(f"{i}")
                     QApplication.processEvents()
 
                 session.commit()
 
         except Exception as e:
-            self.MessageBox('error', f"Database error: {e}")
+            self.log_message(f"Database error: {e}.", self.error)
             return
 
         self.fetch_temp_numbers_count()
-        self.label_comment_log.setText("Real-time status updates and message delivery reports.")
-        self.MessageBox('info', f'{len(nums)} numbers imported successfully')
+        self.log_message(f"Excel file '{file_name}' uploaded successfully ({len(nums)} contacts).", self.success)
 
 
     def select_excel_file(self):
@@ -106,18 +117,47 @@ class Main(QMainWindow, Ui_Main):
         if not file_path:
             return
 
+        file_name = os.path.basename(file_path)
         try:
-            self.extract_numbers_from_excel(file_path)
+            self.import_numbers(file_path, file_name)
         except Exception as e:
-            self.MessageBox('error', f'Error reading file:{e}')
+            self.log_message(f"Error reading file '{file_name}': {e}.", self.error)
 
 
     ############## OPERATIONS #################################
     ######################################################
 
     def start_operation(self):
-        self.MessageBox('info' ,'Test')
+        chrome_options = Options()
+        chrome_options.add_argument("--no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.add_argument("--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36")
+
+        # driver = webdriver.Chrome(options=chrome_options)
+
+        logged_in = False
     
+        valid_numbers = []
+        invalid_numbers = []
+
+        with Session() as session:
+            temp_numbers = session.query(TempNumbers).all()
+
+        for number in temp_numbers:
+            try:
+                self.log_message(f"Message to {number.number} sent successfully.", self.success)
+            except Exception as e:
+                self.log_message(f"Failed to send message to {number.number}: {str(e)}.", self.error)
+                invalid_numbers.append(number)
+                
+
+        # driver.quit()
+        
+    def log_message(self, text, log_type):
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        self.Log.append(f'<font color="{log_type[1]}">{log_type[0]} {timestamp} - {text}</font><br>')
+        QApplication.processEvents()
+
     def pause_operation(self):
         self.MessageBox('info' ,'Test')
 
