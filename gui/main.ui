@@ -576,7 +576,7 @@ border:none;</string>
                    </font>
                   </property>
                   <property name="styleSheet">
-                   <string notr="true">color: #58ABF3;</string>
+                   <string notr="true">color: #055D9D;</string>
                   </property>
                   <property name="text">
                    <string>0</string>
@@ -593,7 +593,7 @@ border:none;</string>
                    </font>
                   </property>
                   <property name="styleSheet">
-                   <string notr="true">color: #58ABF3;</string>
+                   <string notr="true">color: #055D9D;</string>
                   </property>
                   <property name="text">
                    <string>numbers in the temporary database</string>
@@ -678,7 +678,7 @@ border:none;</string>
                    </font>
                   </property>
                   <property name="styleSheet">
-                   <string notr="true">color: rgb(255, 197, 24);</string>
+                   <string notr="true">color: #B76D30;</string>
                   </property>
                   <property name="text">
                    <string>0</string>
@@ -695,7 +695,7 @@ border:none;</string>
                    </font>
                   </property>
                   <property name="styleSheet">
-                   <string notr="true">color: rgb(255, 197, 24);</string>
+                   <string notr="true">color: #B76D30;</string>
                   </property>
                   <property name="text">
                    <string>numbers are pending</string>
