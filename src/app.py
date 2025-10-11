@@ -8,6 +8,7 @@ import time
 import urllib.parse
 import re
 from datetime import datetime
+from contextlib import contextmanager
 
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
@@ -35,14 +36,14 @@ class Main(QMainWindow, Ui_Main):
         self.setupUi(self)
 
         self.title = 'WhatsBot'
-        self.success = ['\uf058', '#055D9D']
-        self.error = ['\uf057', '#BD4A53']
+        self.success = ['\uf058', '#00d4ff']
+        self.activate = ['\uf058', "#00FF00"]
+        self.error = ['\uf057', "#FF0015"]
         self.info = ['\uf05a', '#D8D9DB']
-        self.critical = ['\uf06a', '#B76D30']
+        self.critical = ['\uf06a', "#FFBB00"]
+        
         self.setup_window()
         self.setup_buttons()
-
-        
 
     def setup_window(self):
         self.setWindowTitle(self.title)
@@ -52,7 +53,7 @@ class Main(QMainWindow, Ui_Main):
         self.fetch_message()
         self.fetch_temp_numbers_count()
         self.fetch_all_numbers_count()
-        self.log_message(f"System initialized. Waiting for commands.", self.info)
+        self.log(f"System initialized. Waiting for commands.", self.info)
         
 
     def setup_buttons(self):
@@ -81,7 +82,7 @@ class Main(QMainWindow, Ui_Main):
         nums = nums.apply(lambda x: int(x) if float(x).is_integer() else float(x))
 
         if len(nums) == 0:
-            self.log_message(f"'{file_name}' file is empty.", self.error)
+            self.log(f"'{file_name}' file is empty.", self.error)
             return
 
         try:
@@ -89,7 +90,7 @@ class Main(QMainWindow, Ui_Main):
                 session.query(TempNumbers).delete()
                 session.commit()
 
-                self.log_message(f"Uploading numbers from '{file_name}' file...", self.info)
+                self.log(f"Uploading numbers from '{file_name}' file...", self.info)
                 for i, number in enumerate(nums, 1):
                     session.add(TempNumbers(number=number))
 
@@ -99,11 +100,11 @@ class Main(QMainWindow, Ui_Main):
                 session.commit()
 
         except Exception as e:
-            self.log_message(f"Database error: {e}.", self.error)
+            self.log(f"Database error: {e}.", self.error)
             return
 
         self.fetch_temp_numbers_count()
-        self.log_message(f"Excel file '{file_name}' uploaded successfully ({len(nums)} contacts).", self.success)
+        self.log(f"Excel file '{file_name}' uploaded successfully ({len(nums)} contacts).", self.success)
 
 
     def select_excel_file(self):
@@ -121,19 +122,25 @@ class Main(QMainWindow, Ui_Main):
         try:
             self.import_numbers(file_path, file_name)
         except Exception as e:
-            self.log_message(f"Error reading file '{file_name}': {e}.", self.error)
+            self.log(f"Error reading file '{file_name}': {e}.", self.error)
 
 
     ############## OPERATIONS #################################
     ######################################################
 
     def start_operation(self):
+        self.label_active.show()
+        self.label_inactive.hide()
+        
+        self.log(f"Bot operation is starting...", self.activate)
+        message = self.Message.toPlainText().strip()
+
         chrome_options = Options()
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36")
 
-        # driver = webdriver.Chrome(options=chrome_options)
+        driver = webdriver.Chrome(options=chrome_options)
 
         logged_in = False
     
@@ -142,18 +149,76 @@ class Main(QMainWindow, Ui_Main):
 
         with Session() as session:
             temp_numbers = session.query(TempNumbers).all()
-
-        for number in temp_numbers:
-            try:
-                self.log_message(f"Message to {number.number} sent successfully.", self.success)
-            except Exception as e:
-                self.log_message(f"Failed to send message to {number.number}: {str(e)}.", self.error)
-                invalid_numbers.append(number)
-                
-
-        # driver.quit()
         
-    def log_message(self, text, log_type):
+        if temp_numbers:
+            for num in temp_numbers:
+                with Session() as session:
+                    existing = session.query(Pool).filter(Pool.number == num.number).first()
+
+                    temp = session.query(TempNumbers).filter(TempNumbers.number == num.number).first()
+                    if temp:
+                        session.delete(temp)
+
+                    if existing:
+                        self.log(f"This number has been used previously: +{num.number}.", self.critical)
+                        session.commit()
+                        continue
+
+                    try:
+
+                        encoded_message = urllib.parse.quote(message)
+                        wa_link = f"https://web.whatsapp.com/send?phone=+{num.number}&text={encoded_message}"
+                        driver.get(wa_link)
+                        
+                        if not logged_in:
+                            
+                            wait = WebDriverWait(driver, 30)
+                            wait.until(EC.presence_of_element_located((By.XPATH, '//div[@contenteditable="true"]')))
+                            logged_in = True
+                        else:
+                            wait = WebDriverWait(driver, 15)
+                            wait.until(EC.presence_of_element_located((By.XPATH, '//div[@contenteditable="true"]')))
+                        
+                        time.sleep(2)
+                        error_message = driver.find_elements(By.XPATH, '//div[contains(text(), "Phone number shared via url is invalid.")]')
+                        if error_message:
+                            self.log(f'Phone number +{num.number} shared via url is invalid.', self.error)
+                            invalid_numbers.append(num.number)
+                            continue
+                        
+                        valid_numbers.append(num.number)
+                        
+                        send_button = WebDriverWait(driver, 10).until(
+                            #EC.element_to_be_clickable((By.XPATH, '//span[@data-icon="send"]')) # for android
+                            EC.element_to_be_clickable((By.XPATH, '//span[@data-icon="wds-ic-send-filled"]'))
+                        )
+                        send_button.click()
+
+                        time.sleep(3)
+                        self.log(f"Message to +{num.number} sent successfully.", self.success)
+                        session.add(Pool(number=num.number, whatsapp_status=True))
+                    except Exception as e:
+                        self.log(f"Failed to send message to +{num.number}: {e}.", self.error)
+                        invalid_numbers.append(num)
+
+                    session.commit()
+
+
+                self.fetch_temp_numbers_count()
+                self.fetch_all_numbers_count()
+
+            
+            self.log(f"Bot operation completed. All messages have been sent or attempted.", self.info)
+        else:
+            self.log(f"Error: The DB is empty, import numbers to the database.", self.error)
+       
+        driver.quit()
+        self.label_active.hide()
+        self.label_inactive.show()
+        self.fetch_temp_numbers_count()
+        self.fetch_all_numbers_count()
+
+    def log(self, text, log_type):
         timestamp = datetime.now().strftime("%H:%M:%S")
         self.Log.append(f'<font color="{log_type[1]}">{log_type[0]} {timestamp} - {text}</font><br>')
         QApplication.processEvents()
@@ -175,6 +240,7 @@ class Main(QMainWindow, Ui_Main):
             all_numbers_count = session.query(Pool).count()
         
         self.label_DB_numbers.setText(str(all_numbers_count))
+
 
     ############## Message Section #######################
     ######################################################
@@ -269,7 +335,9 @@ class Main(QMainWindow, Ui_Main):
                 session.query(TempNumbers).delete()
                 session.commit()
 
-                QMessageBox.information(self, 'Database Reset Successful', 'The database has been successfully reset to its initial state.')
+                self.log(f"The database has been successfully reset to its initial state.", self.success)
+                self.fetch_all_numbers_count()
+                self.fetch_temp_numbers_count()
 
 
     ######## Export DB from excel ####################
