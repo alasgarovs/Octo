@@ -127,7 +127,6 @@ class Main(QMainWindow, Ui_Main):
 
     ############## OPERATIONS #################################
     ######################################################
-
     def start_operation(self):
         self.label_active.show()
         self.label_inactive.hide()
@@ -217,6 +216,7 @@ class Main(QMainWindow, Ui_Main):
         self.label_inactive.show()
         self.fetch_temp_numbers_count()
         self.fetch_all_numbers_count()
+
 
     def log(self, text, log_type):
         timestamp = datetime.now().strftime("%H:%M:%S")
